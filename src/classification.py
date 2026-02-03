@@ -4,7 +4,7 @@ Provides text classification capabilities using various machine learning algorit
 """
 
 import numpy as np
-from typing import List, Tuple, Optional, Dict
+from typing import List, Tuple, Optional, Dict, Any
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
@@ -52,8 +52,8 @@ class TextClassifier:
         
         self.is_trained = False
 
-    def train(self, texts: List[str], labels: List[any],
-              test_size: float = 0.2) -> Dict[str, any]:
+    def train(self, texts: List[str], labels: List[Any],
+              test_size: float = 0.2) -> Dict[str, Any]:
         """
         Train the text classifier.
 
@@ -91,7 +91,7 @@ class TextClassifier:
             'test_size': len(X_test)
         }
 
-    def predict(self, texts: List[str]) -> List[any]:
+    def predict(self, texts: List[str]) -> List[Any]:
         """
         Predict labels for new texts.
 
@@ -123,7 +123,7 @@ class TextClassifier:
         X_vec = self.vectorizer.transform(texts)
         return self.classifier.predict_proba(X_vec)
 
-    def get_top_features(self, label: any = None, n: int = 10) -> List[Tuple[str, float]]:
+    def get_top_features(self, label: Any = None, n: int = 10) -> List[Tuple[str, float]]:
         """
         Get top features (words) for a given label.
 

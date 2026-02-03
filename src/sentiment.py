@@ -4,7 +4,7 @@ Provides sentiment analysis capabilities for text data.
 """
 
 import nltk
-from typing import Dict, List
+from typing import Dict, List, Any
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 # Download required NLTK data
@@ -25,7 +25,7 @@ class SentimentAnalyzer:
         """
         self.analyzer = SentimentIntensityAnalyzer()
 
-    def analyze(self, text: str) -> Dict[str, any]:
+    def analyze(self, text: str) -> Dict[str, Any]:
         """
         Analyze sentiment of the given text.
 
@@ -60,7 +60,7 @@ class SentimentAnalyzer:
             'score': abs(compound)
         }
 
-    def analyze_batch(self, texts: List[str]) -> List[Dict[str, any]]:
+    def analyze_batch(self, texts: List[str]) -> List[Dict[str, Any]]:
         """
         Analyze sentiment for multiple texts.
 
@@ -91,7 +91,7 @@ class SentimentAnalyzer:
         return distribution
 
 
-def analyze_sentiment(text: str) -> Dict[str, any]:
+def analyze_sentiment(text: str) -> Dict[str, Any]:
     """
     Convenience function for sentiment analysis.
 
