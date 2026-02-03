@@ -1,5 +1,5 @@
 # Core NLP libraries
-nltk==3.8.1
+nltk==3.9.1
 spacy==3.7.2
 scikit-learn==1.4.0
 
@@ -12,8 +12,8 @@ matplotlib==3.8.2
 seaborn==0.13.1
 
 # Deep learning (optional)
-torch==2.1.2
-transformers==4.36.2
+torch==2.6.0
+transformers==4.48.0
 
 # Utilities
 tqdm==4.66.1
