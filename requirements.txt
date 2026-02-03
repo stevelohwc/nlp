@@ -1,0 +1,28 @@
+# Core NLP libraries
+nltk==3.8.1
+spacy==3.7.2
+scikit-learn==1.3.2
+
+# Text processing
+pandas==2.1.4
+numpy==1.24.3
+
+# Visualization
+matplotlib==3.8.2
+seaborn==0.13.0
+
+# Deep learning (optional)
+torch==2.1.2
+transformers==4.36.2
+
+# Utilities
+tqdm==4.66.1
+requests==2.31.0
+
+# Jupyter for notebooks
+jupyter==1.0.0
+notebook==7.0.6
+
+# Testing
+pytest==7.4.3
+joblib==1.3.2
