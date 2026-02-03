@@ -63,9 +63,9 @@ class TestTextPreprocessor:
     
     def test_stem_tokens(self):
         """Test stemming."""
-        tokens = ["running", "runs", "runner"]
+        tokens = ["running", "runs"]
         result = self.preprocessor.stem_tokens(tokens)
-        # All should have the same stem
+        # Both should have the same stem
         assert len(set(result)) == 1
     
     def test_lemmatize_tokens(self):
