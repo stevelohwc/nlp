@@ -1,0 +1,61 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.conda/
+
+# Packaging / build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+.wheels/
+
+# Tests / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE / editor
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs / temp
+*.log
+*.tmp
+*.bak
+
+# Optional: large artifacts (uncomment if you don't want them versioned)
+# Code/models/
+# Code/text_classification/evaluation_plots/
+# *.pkl
+# *.joblib
+# *.pt
+# *.pth
+# *.onnx
+# *.h5
+# *.npy
+# *.npz

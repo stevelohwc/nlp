@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sentiment Classifier — CT052-3-M-NLP</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <header>
+        <h1>Sentiment Classifier</h1>
+        <p class="subtitle">Model: <strong>{{ model_name }}</strong></p>
+    </header>
+
+    <!-- Input section -->
+    <section class="input-section">
+        <label for="review-input">Paste or type a movie review:</label>
+        <textarea id="review-input" maxlength="2000"
+                  placeholder="Enter a movie review here …"></textarea>
+        <div class="input-footer">
+            <span id="char-count">0 / 2000 characters</span>
+            <div class="input-buttons">
+                <button class="example-btn" id="btn-positive">Try Positive Example</button>
+                <button class="example-btn" id="btn-negative">Try Negative Example</button>
+                <button class="clear-btn"    id="btn-clear">Clear</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Analyze button -->
+    <div class="analyze-row">
+        <button class="analyze-btn" id="btn-analyze">Analyze Sentiment</button>
+    </div>
+
+    <!-- Result section (hidden until prediction arrives) -->
+    <section class="result-section" id="result-section" style="display:none;">
+        <div class="sentiment-label" id="sentiment-label">—</div>
+        <div class="confidence-row">
+            <span class="confidence-text">Confidence</span>
+            <div class="confidence-bar-bg">
+                <div class="confidence-bar-fill" id="confidence-fill"></div>
+            </div>
+            <span class="confidence-pct" id="confidence-pct">0%</span>
+        </div>
+        <p class="model-note" id="model-note"></p>
+    </section>
+
+    <!-- Error message (hidden) -->
+    <div class="error-msg" id="error-msg" style="display:none;"></div>
+
+    <!-- --------------------------------------------------------- -->
+    <!-- IMDb reviews fetcher                                      -->
+    <!-- --------------------------------------------------------- -->
+    <section class="imdb-section">
+        <h2>Or fetch reviews from IMDb</h2>
+        <p class="imdb-hint">Paste an IMDb reviews URL and load them directly.</p>
+        <div class="imdb-input-row">
+            <input type="text" id="imdb-url-input"
+                   placeholder="https://www.imdb.com/title/tt…/reviews/" />
+            <button class="imdb-fetch-btn" id="btn-fetch-reviews">Fetch Reviews</button>
+        </div>
+        <div class="imdb-example-row">
+            <button class="example-btn" id="btn-try-reviews">Try Reviews Example</button>
+        </div>
+        <div class="imdb-error" id="imdb-error" style="display:none;"></div>
+    </section>
+
+    <!-- Fetched reviews list (hidden until populated) -->
+    <section class="reviews-list-section" id="reviews-list-section" style="display:none;">
+        <h3 id="reviews-list-heading">Reviews</h3>
+        <div class="reviews-summary" id="reviews-summary" style="display:none;">
+            <div class="reviews-summary-bar">
+                <div class="reviews-summary-positive" id="summary-positive-bar"></div>
+                <div class="reviews-summary-negative" id="summary-negative-bar"></div>
+            </div>
+            <div class="reviews-summary-labels">
+                <span class="reviews-summary-label positive" id="summary-positive-label">Positive 0</span>
+                <span class="reviews-summary-label negative" id="summary-negative-label">Negative 0</span>
+            </div>
+        </div>
+        <div class="reviews-list" id="reviews-list"></div>
+    </section>
+</div>
+
+<!-- ================================================================= -->
+<!-- Inline JavaScript (no CDN — fully offline)                        -->
+<!-- ================================================================= -->
+<script>
+(function () {
+    'use strict';
+
+    const textarea       = document.getElementById('review-input');
+    const charCount      = document.getElementById('char-count');
+    const btnAnalyze     = document.getElementById('btn-analyze');
+    const btnPositive    = document.getElementById('btn-positive');
+    const btnNegative    = document.getElementById('btn-negative');
+    const btnClear       = document.getElementById('btn-clear');
+    const resultSection  = document.getElementById('result-section');
+    const sentimentLabel = document.getElementById('sentiment-label');
+    const confidenceFill = document.getElementById('confidence-fill');
+    const confidencePct  = document.getElementById('confidence-pct');
+    const modelNote      = document.getElementById('model-note');
+    const errorMsg       = document.getElementById('error-msg');
+
+    // ----------------------------------------------------------
+    // Character counter
+    // ----------------------------------------------------------
+    textarea.addEventListener('input', function () {
+        charCount.textContent = textarea.value.length + ' / 2000 characters';
+    });
+
+    // ----------------------------------------------------------
+    // Example buttons
+    // ----------------------------------------------------------
+    function loadExample(type) {
+        fetch('/examples')
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                textarea.value = data[type];
+                charCount.textContent = textarea.value.length + ' / 2000 characters';
+                hideError();
+            });
+    }
+    btnPositive.addEventListener('click', function () { loadExample('positive'); });
+    btnNegative.addEventListener('click', function () { loadExample('negative'); });
+
+    // ----------------------------------------------------------
+    // Clear
+    // ----------------------------------------------------------
+    btnClear.addEventListener('click', function () {
+        textarea.value = '';
+        charCount.textContent = '0 / 2000 characters';
+        resultSection.style.display = 'none';
+        hideError();
+    });
+
+    // ----------------------------------------------------------
+    // Analyze
+    // ----------------------------------------------------------
+    btnAnalyze.addEventListener('click', function () {
+        var text = textarea.value.trim();
+        if (!text) {
+            showError('Please enter some text first.');
+            return;
+        }
+        hideError();
+        btnAnalyze.textContent  = 'Analyzing …';
+        btnAnalyze.disabled     = true;
+
+        fetch('/predict', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ text: text })
+        })
+        .then(function (res) {
+            if (!res.ok) throw new Error('Server error');
+            return res.json();
+        })
+        .then(function (data) {
+            showResult(data);
+        })
+        .catch(function (err) {
+            showError('Prediction failed — please try again.');
+        })
+        .finally(function () {
+            btnAnalyze.textContent = 'Analyze Sentiment';
+            btnAnalyze.disabled    = false;
+        });
+    });
+
+    // ----------------------------------------------------------
+    // Display helpers
+    // ----------------------------------------------------------
+    function showResult(data) {
+        resultSection.style.display = 'block';
+
+        // Label + color class
+        sentimentLabel.textContent = data.label;
+        sentimentLabel.className   = 'sentiment-label ' +
+            (data.label === 'Positive' ? 'positive' : 'negative');
+
+        // Confidence bar (animate after a tick)
+        var pct = Math.round(data.confidence * 100);
+        confidencePct.textContent = pct + '%';
+        confidenceFill.style.width = '0%';
+        confidenceFill.className   = 'confidence-bar-fill ' +
+            (data.label === 'Positive' ? 'positive' : 'negative');
+        setTimeout(function () {
+            confidenceFill.style.width = pct + '%';
+        }, 50);
+
+        modelNote.textContent = 'Predicted by ' + data.model_name;
+    }
+
+    function showError(msg) {
+        errorMsg.textContent    = msg;
+        errorMsg.style.display  = 'block';
+    }
+    function hideError() {
+        errorMsg.style.display = 'none';
+    }
+
+    // ----------------------------------------------------------
+    // IMDb reviews fetcher
+    // ----------------------------------------------------------
+    var imdbInput        = document.getElementById('imdb-url-input');
+    var btnFetch         = document.getElementById('btn-fetch-reviews');
+    var btnTryReviews    = document.getElementById('btn-try-reviews');
+    var imdbError        = document.getElementById('imdb-error');
+    var reviewsSection   = document.getElementById('reviews-list-section');
+    var reviewsHeading   = document.getElementById('reviews-list-heading');
+    var reviewsList      = document.getElementById('reviews-list');
+    var _currentTitle    = '';   // kept in sync by renderReviews
+
+    btnTryReviews.addEventListener('click', function () {
+        imdbInput.value = 'https://www.imdb.com/title/tt0371746/reviews';
+        imdbError.style.display = 'none';
+    });
+
+    btnFetch.addEventListener('click', function () {
+        var url = imdbInput.value.trim();
+        if (!url) {
+            imdbError.textContent   = 'Please paste an IMDb reviews URL.';
+            imdbError.style.display = 'block';
+            return;
+        }
+        imdbError.style.display  = 'none';
+        btnFetch.textContent     = 'Fetching …';
+        btnFetch.disabled        = true;
+        reviewsSection.style.display = 'none';
+
+        fetch('/fetch_reviews', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ url: url })
+        })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+            if (data.error) {
+                imdbError.textContent   = data.error;
+                imdbError.style.display = 'block';
+                return;
+            }
+            renderReviews(data.reviews, data.movie_title);
+            analyzeAll(data.reviews);   // auto-predict every card
+        })
+        .catch(function () {
+            imdbError.textContent   = 'Failed to fetch reviews. Check the URL and try again.';
+            imdbError.style.display = 'block';
+        })
+        .finally(function () {
+            btnFetch.textContent = 'Fetch Reviews';
+            btnFetch.disabled    = false;
+        });
+    });
+
+    function renderReviews(reviews, movieTitle) {
+        reviewsList.innerHTML = '';
+        _currentTitle = movieTitle || '';
+        var titlePart = _currentTitle ? _currentTitle + ' — ' : '';
+        reviewsHeading.textContent = titlePart + reviews.length + ' review' + (reviews.length !== 1 ? 's' : '') + ' fetched — analyzing …';
+        reviewsSection.style.display = 'block';
+
+        reviews.forEach(function (r, idx) {
+            var card = document.createElement('div');
+            card.className = 'review-card';
+            card.id = 'review-card-' + idx;
+
+            // Header row: summary + IMDb rating
+            var header = document.createElement('div');
+            header.className = 'review-card-header';
+
+            var summary = document.createElement('span');
+            summary.className = 'review-card-summary';
+            summary.textContent = r.summary;
+            header.appendChild(summary);
+
+            if (r.rating) {
+                var rating = document.createElement('span');
+                rating.className = 'review-card-rating';
+                rating.textContent = r.rating;
+                header.appendChild(rating);
+            }
+            card.appendChild(header);
+
+            // Body preview (first 150 chars)
+            if (r.text && r.text !== r.summary) {
+                var preview = document.createElement('p');
+                preview.className = 'review-card-preview';
+                preview.textContent = r.text.length > 150
+                    ? r.text.slice(0, 150) + ' …'
+                    : r.text;
+                card.appendChild(preview);
+            }
+
+            // Footer row: sentiment badge + "Load into editor" button
+            var footer = document.createElement('div');
+            footer.className = 'review-card-footer';
+
+            var badge = document.createElement('span');
+            badge.className = 'review-card-sentiment pending';
+            badge.id = 'sentiment-badge-' + idx;
+            badge.textContent = 'Analyzing …';
+            footer.appendChild(badge);
+
+            var btn = document.createElement('button');
+            btn.className = 'review-card-btn';
+            btn.textContent = 'Load into editor';
+            btn.addEventListener('click', (function (text) {
+                return function () {
+                    textarea.value = text.slice(0, 2000);
+                    charCount.textContent = textarea.value.length + ' / 2000 characters';
+                    hideError();
+                    resultSection.style.display = 'none';
+                    textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    textarea.focus();
+                };
+            })(r.text));
+            footer.appendChild(btn);
+
+            card.appendChild(footer);
+
+            reviewsList.appendChild(card);
+        });
+    }
+
+    // Fire /predict for every review in parallel; stamp badges as they resolve
+    function analyzeAll(reviews) {
+        var counts = { positive: 0, negative: 0 };
+        document.getElementById('reviews-summary').style.display = 'none';
+
+        var promises = reviews.map(function (r, idx) {
+            return fetch('/predict', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ text: r.text })
+            })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                var badge = document.getElementById('sentiment-badge-' + idx);
+                if (!badge) return;
+                var pct   = Math.round(data.confidence * 100);
+                badge.className   = 'review-card-sentiment ' + (data.label === 'Positive' ? 'positive' : 'negative');
+                badge.textContent = data.label + ' — ' + pct + '%';
+                counts[data.label === 'Positive' ? 'positive' : 'negative']++;
+            })
+            .catch(function () {
+                var badge = document.getElementById('sentiment-badge-' + idx);
+                if (badge) {
+                    badge.className   = 'review-card-sentiment pending';
+                    badge.textContent = 'Failed';
+                }
+            });
+        });
+
+        Promise.all(promises).then(function () {
+            var titlePart = _currentTitle ? _currentTitle + ' — ' : '';
+            reviewsHeading.textContent = titlePart + reviews.length + ' review' + (reviews.length !== 1 ? 's' : '') + ' — sentiment analyzed';
+            showSummary(counts, reviews.length);
+        });
+    }
+
+    function showSummary(counts, total) {
+        var summary  = document.getElementById('reviews-summary');
+        var posBar   = document.getElementById('summary-positive-bar');
+        var negBar   = document.getElementById('summary-negative-bar');
+        var posLabel = document.getElementById('summary-positive-label');
+        var negLabel = document.getElementById('summary-negative-label');
+
+        var posPct = total > 0 ? Math.round((counts.positive / total) * 100) : 0;
+        var negPct = 100 - posPct;
+
+        posBar.style.width = posPct + '%';
+        negBar.style.width = negPct + '%';
+        posLabel.textContent = 'Positive  ' + counts.positive + ' (' + posPct + '%)';
+        negLabel.textContent = 'Negative  ' + counts.negative + ' (' + negPct + '%)';
+
+        summary.style.display = 'block';
+    }
+})();
+</script>
+</body>
+</html>

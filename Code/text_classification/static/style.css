@@ -1,0 +1,492 @@
+/* ================================================================
+   Sentiment Classifier — Stylesheet
+   Clean, modern, fully offline (system fonts only)
+   ================================================================ */
+
+/* --- Reset & base ------------------------------------------------ */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                 "Helvetica Neue", Arial, sans-serif;
+    background-color: #f4f6f8;
+    color: #2c3e50;
+    min-height: 100vh;
+    padding: 40px 16px;
+    line-height: 1.6;
+}
+
+/* --- Container --------------------------------------------------- */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    padding: 40px 36px 36px;
+}
+
+/* --- Header ------------------------------------------------------ */
+header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+header h1 {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin-bottom: 4px;
+}
+
+.subtitle {
+    font-size: 0.95rem;
+    color: #7f8c8d;
+}
+
+/* --- Input section ----------------------------------------------- */
+.input-section label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #34495e;
+}
+
+.input-section textarea {
+    width: 100%;
+    min-height: 160px;
+    padding: 14px 16px;
+    font-size: 1rem;
+    border: 2px solid #dce1e7;
+    border-radius: 8px;
+    resize: vertical;
+    font-family: inherit;
+    transition: border-color 0.2s;
+    background: #fafbfc;
+}
+
+.input-section textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    background: #fff;
+}
+
+/* Input footer: char counter + buttons */
+.input-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+#char-count {
+    font-size: 0.85rem;
+    color: #95a5a6;
+}
+
+.input-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Example buttons */
+.example-btn {
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    border: 1.5px solid #3498db;
+    background: transparent;
+    color: #3498db;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.example-btn:hover {
+    background: #3498db;
+    color: #fff;
+}
+
+/* Clear button */
+.clear-btn {
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    border: 1.5px solid #bdc3c7;
+    background: transparent;
+    color: #7f8c8d;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.clear-btn:hover {
+    background: #ecf0f1;
+    color: #2c3e50;
+}
+
+/* --- Analyze button row ------------------------------------------ */
+.analyze-row {
+    text-align: center;
+    margin: 24px 0;
+}
+
+.analyze-btn {
+    padding: 12px 40px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: filter 0.2s, transform 0.1s;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.35);
+}
+
+.analyze-btn:hover {
+    filter: brightness(1.08);
+}
+
+.analyze-btn:active {
+    transform: scale(0.97);
+}
+
+.analyze-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* --- Result section ---------------------------------------------- */
+.result-section {
+    text-align: center;
+    padding: 28px 16px 20px;
+    border-top: 1px solid #eee;
+    margin-top: 8px;
+}
+
+/* Large sentiment label */
+.sentiment-label {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    transition: color 0.3s;
+}
+
+.sentiment-label.positive { color: #27ae60; }
+.sentiment-label.negative { color: #e74c3c; }
+
+/* Confidence bar row */
+.confidence-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.confidence-text {
+    font-size: 0.95rem;
+    color: #7f8c8d;
+    min-width: 80px;
+    text-align: right;
+}
+
+.confidence-bar-bg {
+    width: 280px;
+    height: 22px;
+    background: #ecf0f1;
+    border-radius: 11px;
+    overflow: hidden;
+}
+
+.confidence-bar-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 11px;
+    transition: width 0.6s ease;
+}
+
+.confidence-bar-fill.positive { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+.confidence-bar-fill.negative { background: linear-gradient(90deg, #e74c3c, #e67e22); }
+
+.confidence-pct {
+    font-size: 1rem;
+    font-weight: 600;
+    min-width: 48px;
+    text-align: left;
+    color: #2c3e50;
+}
+
+/* Model attribution note */
+.model-note {
+    font-size: 0.82rem;
+    color: #95a5a6;
+    margin-top: 6px;
+}
+
+/* --- Error message ----------------------------------------------- */
+.error-msg {
+    background: #fdecea;
+    color: #c0392b;
+    border: 1px solid #f5c6cb;
+    border-radius: 6px;
+    padding: 10px 16px;
+    margin-top: 16px;
+    font-size: 0.92rem;
+}
+
+/* --- IMDb fetcher section ---------------------------------------- */
+.imdb-section {
+    margin-top: 36px;
+    padding-top: 28px;
+    border-top: 2px solid #eee;
+}
+
+.imdb-section h2 {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin-bottom: 4px;
+}
+
+.imdb-hint {
+    font-size: 0.88rem;
+    color: #95a5a6;
+    margin-bottom: 12px;
+}
+
+.imdb-input-row {
+    display: flex;
+    gap: 10px;
+}
+
+.imdb-input-row input {
+    flex: 1;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    border: 2px solid #dce1e7;
+    border-radius: 8px;
+    font-family: inherit;
+    background: #fafbfc;
+    transition: border-color 0.2s;
+}
+
+.imdb-input-row input:focus {
+    outline: none;
+    border-color: #3498db;
+    background: #fff;
+}
+
+.imdb-example-row {
+    margin-top: 8px;
+}
+
+.imdb-fetch-btn {
+    padding: 10px 22px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    background: #2c3e50;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+
+.imdb-fetch-btn:hover   { background: #34495e; }
+.imdb-fetch-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.imdb-error {
+    background: #fdecea;
+    color: #c0392b;
+    border: 1px solid #f5c6cb;
+    border-radius: 6px;
+    padding: 8px 14px;
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+/* --- Fetched reviews list --------------------------------------- */
+.reviews-list-section {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.reviews-list-section h3 {
+    font-size: 1.05rem;
+    color: #2c3e50;
+    margin-bottom: 12px;
+}
+
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.review-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 14px 16px;
+    transition: border-color 0.2s;
+}
+
+.review-card:hover {
+    border-color: #3498db;
+}
+
+.review-card-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
+.review-card-summary {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.97rem;
+}
+
+.review-card-rating {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    background: #f39c12;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.review-card-preview {
+    font-size: 0.9rem;
+    color: #636e72;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.review-card-btn {
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.review-card-btn:hover { background: #2980b9; }
+
+/* Overall sentiment summary */
+.reviews-summary {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+}
+
+.reviews-summary-bar {
+    display: flex;
+    height: 24px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #ecf0f1;
+    margin-bottom: 10px;
+}
+
+.reviews-summary-positive {
+    background: linear-gradient(90deg, #27ae60, #2ecc71);
+    transition: width 0.6s ease;
+}
+
+.reviews-summary-negative {
+    background: linear-gradient(90deg, #e74c3c, #e67e22);
+    transition: width 0.6s ease;
+}
+
+.reviews-summary-labels {
+    display: flex;
+    justify-content: space-between;
+}
+
+.reviews-summary-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.reviews-summary-label.positive { color: #27ae60; }
+.reviews-summary-label.negative { color: #e74c3c; }
+
+/* Footer row: badge + button always side by side */
+.review-card-footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* Inline sentiment badge on each review card */
+.review-card-sentiment {
+    display: inline-block;
+    font-size: 0.88rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.review-card-sentiment.positive {
+    background: #eafaf1;
+    color: #27ae60;
+    border: 1px solid #27ae60;
+}
+
+.review-card-sentiment.negative {
+    background: #fdedec;
+    color: #e74c3c;
+    border: 1px solid #e74c3c;
+}
+
+.review-card-sentiment.pending {
+    background: #f0f0f0;
+    color: #95a5a6;
+    border: 1px solid #ddd;
+}
+
+/* --- Responsive tweaks ------------------------------------------ */
+@media (max-width: 600px) {
+    .container {
+        padding: 24px 18px 20px;
+    }
+
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    .confidence-bar-bg {
+        width: 180px;
+    }
+
+    .sentiment-label {
+        font-size: 2.2rem;
+    }
+
+    .imdb-input-row {
+        flex-direction: column;
+    }
+
+    .review-card-header {
+        flex-direction: column;
+        gap: 4px;
+    }
+}

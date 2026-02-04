@@ -1,0 +1,88 @@
+{
+  "svm": {
+    "model": "LinearSVC",
+    "features": "TF-IDF",
+    "hyperparameters": {
+      "C": 0.1,
+      "max_iter": 5000
+    },
+    "cv_best_score": 0.8819502319213472,
+    "training_time": 4.5243980884552,
+    "validation_metrics": {
+      "accuracy": 0.8924,
+      "precision": 0.8859166011014948,
+      "recall": 0.9008,
+      "f1": 0.8932963109877033,
+      "confusion_matrix": [
+        [
+          2210,
+          290
+        ],
+        [
+          248,
+          2252
+        ]
+      ]
+    },
+    "test_metrics": {
+      "accuracy": 0.88908,
+      "precision": 0.8828020464384101,
+      "recall": 0.89728,
+      "f1": 0.8899821463995239,
+      "confusion_matrix": [
+        [
+          11011,
+          1489
+        ],
+        [
+          1284,
+          11216
+        ]
+      ]
+    }
+  },
+  "random_forest": {
+    "model": "RandomForestClassifier",
+    "features": "TF-IDF",
+    "hyperparameters": {
+      "n_estimators": 300,
+      "min_samples_split": 10,
+      "min_samples_leaf": 1,
+      "max_depth": 50
+    },
+    "cv_best_score": 0.8456502242394631,
+    "training_time": 280.6156680583954,
+    "validation_metrics": {
+      "accuracy": 0.852,
+      "precision": 0.8445575567736884,
+      "recall": 0.8628,
+      "f1": 0.853581321725366,
+      "confusion_matrix": [
+        [
+          2103,
+          397
+        ],
+        [
+          343,
+          2157
+        ]
+      ]
+    },
+    "test_metrics": {
+      "accuracy": 0.84772,
+      "precision": 0.8415717092337918,
+      "recall": 0.85672,
+      "f1": 0.8490782953419227,
+      "confusion_matrix": [
+        [
+          10484,
+          2016
+        ],
+        [
+          1791,
+          10709
+        ]
+      ]
+    }
+  }
+}
