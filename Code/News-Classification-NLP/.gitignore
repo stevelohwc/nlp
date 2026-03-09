@@ -212,3 +212,21 @@ Scripts/
 share/
 pyenv.configuration
 pyvenv.cfg
+
+# Project-specific generated artifacts
+/data/raw/*.zip
+/data/raw/*.csv
+!/data/raw/.gitkeep
+
+/data/processed/*
+!/data/processed/.gitkeep
+
+/models/*.pkl
+!/models/.gitkeep
+
+/reports/*.json
+/reports/*.log
+!/reports/.gitkeep
+
+/evaluation_plots/*.png
+!/evaluation_plots/.gitkeep
